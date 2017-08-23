@@ -2,7 +2,7 @@
 
 $CLIENT_ID = "<nibe_api_client_id>";
 $CLIENT_SECRET = "<nibe_api_client_secret>";
-$REDIRECT_URL = "http://<raspberryPI>/index.php";
+$REDIRECT_URL = "http://raspberrypi.fritz.box/nibe/index.php";
 $DEBUG=0;
 $SCOPES = "READSYSTEM";
 
