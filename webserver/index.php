@@ -63,7 +63,7 @@ function authorize($CODE, $isRefresh = false)
     return $token;
 }
 
-function readAPI($URI, $token)
+function readAPI($URI, $token, &$success = 'undefined')
 {
 
     $ch = curl_init();
@@ -77,6 +77,7 @@ function readAPI($URI, $token)
     $response = curl_exec($ch);
 
     $data = false;
+    $success = false;
     if ($response === false)
     {
         echo 'Curl-Fehler: ' . curl_error($ch);
@@ -87,10 +88,11 @@ function readAPI($URI, $token)
         {
 		    case 200:
 				$data = json_decode($response);
+				if ($data !== false) $success = true;
 			break;
     	    
     	    default:
-				echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
+				$data = "Unerwarter HTTP-Code: " . $http_code . "<br />\nResponse:<br />\n" . $response;
 		}
     }
 
@@ -192,33 +194,60 @@ function checkStatus()
     if (isset($_GET["autoUpdate"]) && $_GET["autoUpdate"] == "true")
     {
 		header("refresh:5;url=" . baseURL() . "?autoUpdate=true");
-		echo "<a href=\"" . baseURL() . "?autoUpdate=false\">Disable autoupdate</a><br /><br />\n";
+		echo "<center><a href=\"" . baseURL() . "?autoUpdate=false\">Disable auto refresh</a></center><br /><br />\n";
     }
     else
     {
-		echo "<a href=\"" . baseURL() . "?autoUpdate=true\">Enable autoupdate</a><br /><br />\n";
+		echo "<center><a href=\"" . baseURL() . "?autoUpdate=true\">Enable auto refresh</a></center><br /><br />\n";
     }
 
-    echo "Status: authorized<br /><br />\n";
+    echo "<h2>Status</h2>";
+    echo "Current status: authorized<br /><br />\n";
     echo "Access-Token:<br />" . $token->access_token . "<br /><br />\n";
-    echo "Time: " . time() . "<br />\n";
+    echo "Current Time: " . time() . "<br />\n";
     echo "Last update: " . last_token_update() . "<br />\n";
-    echo "Token expire: " . $token->expires_in . "<br />\n";
+    echo "Token expire time: " . $token->expires_in . "<br />\n";
     echo "Remaining seconds: " . ($token->expires_in - (time() - last_token_update()) . "<br /><br />\n");
 
-    echo "Test-Response:<br />\n";
-    $response = readAPI("systems", $token);
-    if ($response === false)
+    echo "<h2>Status response</h2>";
+    $response = readAPI("systems", $token, $success);
+    if (!$success)
     {
-        echo "Test failed<br />\n";
+        echo "FAILED:<br />\n";
+        print_r($response);
     }
     else
     {
-        echo "Response:<br />\n";
         echo "<pre>" . json_encode($response, JSON_PRETTY_PRINT) . "</pre>";
     }
+    
+    ?>
+    <h2>Query</h2>
+    <div><form>
+   		<input type="hidden" name="mode" value="raw" />
+      	<p>
+      		Output format: <input type="radio" name="format" value="json" checked>json&nbsp;<input type="radio" name="format" value="pretty">pretty print
+      	</p>
+    	<p>
+    		Function:
+    		<input type="text" name="exec" value="systems">&nbsp;
+      		<input type="submit" value="Submit">
+      	</p>
+    </form></div>
+    <div>
+    <a href="https://api.nibeuplink.com/docs/v1/Functions">Nibe Uplink API Documentation</a><br />
+    </div>
+    <?php
 }
 
+function unauthorized()
+{
+	header("HTTP/1.0 401 Unauthorized");
+	$URL = baseURL();
+	echo "Not authorized yet. Please setup the required token by opening the following URL in your browser from without your LAN:<br />\n";
+	echo "<a href=\"$URL\">" . (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER[HTTP_HOST] . explode("?",$_SERVER['REQUEST_URI'])[0] . "</a>";
+	die();
+}
 
 // handle API callback
 if (isset($_GET["state"]) && $_GET["state"] == "authorization")
@@ -252,26 +281,25 @@ else if (isset($_GET["exec"]))
     $token = checkToken();
     if ($token === false)
     {
-		$URL = baseURL();
-		echo "Not authorized yet. Please setup the required token by opening the following URL in your browser from without your LAN:<br />\n";
-		echo "<a href=\"$URL\">" . (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER[HTTP_HOST] . explode("?",$_SERVER['REQUEST_URI'])[0] . "</a>";
-		die();
+    	unauthorized();
     }
-    
-    $exec = urlencode($_GET["exec"]);
+    $exec = $_GET["exec"];
 
-    $response = readAPI($exec, $token);
-    if ($response === false)
-    {
-		echo "There was an error accessing the remote API:<br />\n";
-		print_r($response);
-		die();
-    }
+	if (isset($_GET["mode"]) && $_GET["mode"] == "raw")
+	{
+		$response = readAPI(urlencode($exec), $token, $success);
+		if (!$success)
+		{
+			header("HTTP/1.0 400 Bad Request");
+			print_r($response);
+			die(1);
+		}
 
-    $output = json_encode($response, JSON_PRETTY_PRINT);
-    if (isset($_GET["format"]) && $_GET["format"] == "pretty") $output = "<pre>" . $output . "</pre>";
+		$output = json_encode($response, JSON_PRETTY_PRINT);
+		if (isset($_GET["format"]) && $_GET["format"] == "pretty") $output = "<pre>" . $output . "</pre>";
 
-    echo $output;
+		echo $output;
+	}
 }
 
 // handle default access
