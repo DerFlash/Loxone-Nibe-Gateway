@@ -21,13 +21,13 @@ function authorize($CODE, $isRefresh = false)
 
     if ($isRefresh)
     {
-	$pf = "&refresh_token=" . urlencode($CODE);
-	$grant_type = "refresh_token";
+		$pf = "&refresh_token=" . urlencode($CODE);
+		$grant_type = "refresh_token";
     }
     else
     {
-	$pf = "&code=" . urlencode($CODE) . "&redirect_uri=" . $REDIRECT_URL . "&scope=" . urlencode($SCOPES);
-	$grant_type = "authorization_code";
+		$pf = "&code=" . urlencode($CODE) . "&redirect_uri=" . $REDIRECT_URL . "&scope=" . urlencode($SCOPES);
+		$grant_type = "authorization_code";
     }
 
     curl_setopt($ch, CURLOPT_URL,"https://api.nibeuplink.com/oauth/token");
@@ -48,13 +48,15 @@ function authorize($CODE, $isRefresh = false)
     }
     else
     {
-        switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
-	    case 200:
-		$token = json_decode($response);
-		break;
+        switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE))
+        {
+		    case 200:
+				$token = json_decode($response);
+			break;
+    	    
     	    default:
-		echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
-	}
+				echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
+		}
     }
 
     curl_close ($ch);
@@ -81,13 +83,15 @@ function readAPI($URI, $token)
     }
     else
     {
-        switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE)) {
-	    case 200:
-		$data = json_decode($response);
-		break;
+        switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE))
+        {
+		    case 200:
+				$data = json_decode($response);
+			break;
+    	    
     	    default:
-		echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
-	}
+				echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
+		}
     }
 
     curl_close ($ch);
@@ -98,8 +102,8 @@ function save_token($token)
 {
     if (!file_put_contents("token", serialize($token)))
     {
-	echo "Could not save token.";
-	die();
+		echo "Could not save token.";
+		die();
     }
 
     return true;
@@ -110,7 +114,7 @@ function load_token()
     $token = file_get_contents("token");
     if ($token === false)
     {
-	return false;
+		return false;
     }
     
     return @unserialize($token);
@@ -120,8 +124,8 @@ function clear_token()
 {
     if (!file_put_contents("token", (string)"\n"))
     {
-	echo "Could not clear token.";
-	die();
+		echo "Could not clear token.";
+		die();
     }
 
     return true;
@@ -150,18 +154,18 @@ function checkToken()
     $token = load_token();
     if ($token === false)
     {
-	return false;
+		return false;
     }
     
     if (token_needs_update($token))
     {
-	if ($DEBUG) echo "Token needs update. Working on it...<br />\n";
-	$token = authorize($token->refresh_token, true);
+		if ($DEBUG) echo "Token needs update. Working on it...<br />\n";
+		$token = authorize($token->refresh_token, true);
 
-	if ($token === false)
-	{
-	    clear_token();
-	    if ($DEBUG) echo "Failed to refresh token.<br />\n";
+		if ($token === false)
+		{
+	    	clear_token();
+	    	if ($DEBUG) echo "Failed to refresh token.<br />\n";
     	    return false;
         }
 
@@ -180,19 +184,19 @@ function checkStatus()
     if ($token === false)
     {
         $URL = "https://api.nibeuplink.com/oauth/authorize?response_type=code&client_id=$CLIENT_ID&scope=$SCOPES&redirect_uri=$REDIRECT_URL&state=authorization";
-	header("refresh:5;url=$URL");
-	echo "Needs Authorization. You'll be redirected in about 5 secs. If not, click <a href=\"$URL\">here</a>.";
-	die();
+		header("refresh:5;url=$URL");
+		echo "Needs Authorization. You'll be redirected in about 5 secs. If not, click <a href=\"$URL\">here</a>.";
+		die();
     }
 
     if (isset($_GET["autoUpdate"]) && $_GET["autoUpdate"] == "true")
     {
-	header("refresh:5;url=" . baseURL() . "?autoUpdate=true");
-	echo "<a href=\"" . baseURL() . "?autoUpdate=false\">Disable autoupdate</a><br /><br />\n";
+		header("refresh:5;url=" . baseURL() . "?autoUpdate=true");
+		echo "<a href=\"" . baseURL() . "?autoUpdate=false\">Disable autoupdate</a><br /><br />\n";
     }
     else
     {
-	echo "<a href=\"" . baseURL() . "?autoUpdate=true\">Enable autoupdate</a><br /><br />\n";
+		echo "<a href=\"" . baseURL() . "?autoUpdate=true\">Enable autoupdate</a><br /><br />\n";
     }
 
     echo "Status: authorized<br /><br />\n";
@@ -221,8 +225,8 @@ if (isset($_GET["state"]) && $_GET["state"] == "authorization")
 {
     if (!isset($_GET["code"]))
     {
-	echo "Missing code!";
-	die();
+		echo "Missing code!";
+		die();
     }
 
     $CODE = $_GET["code"];
@@ -232,12 +236,12 @@ if (isset($_GET["state"]) && $_GET["state"] == "authorization")
     header("refresh:5;url=" . baseURL());
     if ($token === false)
     {
-	clear_token();
-	echo "Failed to authorize! Redirecting to <a href=\"" . baseURL()  . "\">status page</a> ...";
+		clear_token();
+		echo "Failed to authorize! Redirecting to <a href=\"" . baseURL()  . "\">status page</a> ...";
     }
     else
     {
-	save_token($token);
+		save_token($token);
         echo "Successfully authorized! Redirecting to <a href=\"" . baseURL()  . "\">status page</a> ...";
     }
     die();
@@ -248,10 +252,10 @@ else if (isset($_GET["exec"]))
     $token = checkToken();
     if ($token === false)
     {
-	$URL = baseURL();
-	echo "Not authorized yet. Please setup the required token by opening the following URL in your browser from without your LAN:<br />\n";
-	echo "<a href=\"$URL\">$url</a>";
-	die();
+		$URL = baseURL();
+		echo "Not authorized yet. Please setup the required token by opening the following URL in your browser from without your LAN:<br />\n";
+		echo "<a href=\"$URL\">" . (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER[HTTP_HOST] . explode("?",$_SERVER['REQUEST_URI'])[0] . "</a>";
+		die();
     }
     
     $exec = urlencode($_GET["exec"]);
@@ -259,9 +263,9 @@ else if (isset($_GET["exec"]))
     $response = readAPI($exec, $token);
     if ($response === false)
     {
-	echo "There was an error accessing the remote API:<br />\n";
-	print_r($response);
-	die();
+		echo "There was an error accessing the remote API:<br />\n";
+		print_r($response);
+		die();
     }
 
     $output = json_encode($response, JSON_PRETTY_PRINT);
@@ -273,7 +277,6 @@ else if (isset($_GET["exec"]))
 // handle default access
 else
 {
-    
     checkStatus();
 }
 
