@@ -269,7 +269,7 @@ else if (isset($_GET["exec"]))
     }
 
     $output = json_encode($response, JSON_PRETTY_PRINT);
-    if (isset($_GET["mode"]) && $_GET["mode"] == "pretty") $output = "<pre>" . $output . "</pre>";
+    if (isset($_GET["format"]) && $_GET["format"] == "pretty") $output = "<pre>" . $output . "</pre>";
 
     echo $output;
 }
