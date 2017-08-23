@@ -1,9 +1,17 @@
 <?php
 
-$CLIENT_ID = "<nibe_api_client_id>";
-$CLIENT_SECRET = "<nibe_api_client_secret>";
-$REDIRECT_URL = "http://raspberrypi.fritz.box/nibe/index.php";
-$DEBUG=0;
+// CONFIG (set up your own application on https://api.nibeuplink.com to get these things)
+//==========
+
+$CLIENT_ID = "<nibe_api_client_id>"; // Nibe Uplink API Application Identifier
+$CLIENT_SECRET = "<nibe_api_client_secret>"; // Nibe Uplink API Application Secret
+$REDIRECT_URL = "http://raspberrypi.fritz.box/nibe/"; // the URL on your raspberryPi to the folder containing this script (this can and should only be accessible from your LAN for security reasons!)
+
+
+// DO NOT EDIT THE CODE BELOW UNLESS YOU KNOW WHAT YOU'RE DOING ;-)
+//==========
+
+$DEBUG = 0;
 $SCOPES = "READSYSTEM";
 
 if ($DEBUG)
@@ -186,8 +194,9 @@ function checkStatus()
     if ($token === false)
     {
         $URL = "https://api.nibeuplink.com/oauth/authorize?response_type=code&client_id=$CLIENT_ID&scope=$SCOPES&redirect_uri=$REDIRECT_URL&state=authorization";
-		header("refresh:5;url=$URL");
-		echo "Needs Authorization. You'll be redirected in about 5 secs. If not, click <a href=\"$URL\">here</a>.";
+		echo "You're not authorized yet.<br /><br />\n";
+		echo "<b>Important:</b> If you haven't done that yet, create an application on <a href=\"https://api.nibeuplink.com\">https://api.nibeuplink.com</a> first and update the config section in the index.php (this file).<br ><br />\n";
+		echo "If you think you're ready to connect this bridge to the Nibe API, click <a href=\"$URL\">here</a>.";
 		die();
     }
 
@@ -245,7 +254,7 @@ function unauthorized()
 	header("HTTP/1.0 401 Unauthorized");
 	$URL = baseURL();
 	echo "Not authorized yet. Please setup the required token by opening the following URL in your browser from without your LAN:<br />\n";
-	echo "<a href=\"$URL\">" . (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER[HTTP_HOST] . explode("?",$_SERVER['REQUEST_URI'])[0] . "</a>";
+	echo "<a href=\"$URL\">" . (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . explode("?",$_SERVER['REQUEST_URI'])[0] . "</a>";
 	die();
 }
 
