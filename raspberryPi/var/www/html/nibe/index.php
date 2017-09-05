@@ -59,11 +59,17 @@ function authorize($CODE, $isRefresh = false)
         switch ($http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE))
         {
 		    case 200:
-				$token = json_decode($response);
+				$jsonResponse = json_decode($response);
+				if ($jsonResponse != NULL || strlen(trim($token)) > 0)
+				{
+					$token = $jsonResponse;
+				} else {
+					echo 'Could not decode json response: ' . $response . '\n';
+				}
 			break;
     	    
     	    default:
-				echo 'Unerwarter HTTP-Code: ', $http_code, "\n";
+				echo 'Unerwarter HTTP-Code: ' . $http_code . "\n";
 		}
     }
 
