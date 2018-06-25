@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VirtualOut Title="Nibe Gateway" Comment="" Address="http://raspberrypi.fritz.box" CmdInit="" CloseAfterSend="true" CmdSep=";">
+	<VirtualOutCmd Title="setTemperature" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/nibe/?mode=set&amp;externalId=0&amp;systemId=37034&amp;&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="1800" RepeatRate="1800"/>
+	<VirtualOutCmd Title="setSmartHomeMode" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/nibe/?mode=set&amp;systemId=37034&amp;smartHomeMode=&lt;v&gt;" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="true" Repeat="1800" RepeatRate="1800"/>
+	<VirtualOutCmd Title="startHotWaterBoost" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/nibe/index.php?mode=set&amp;systemId=37034&amp;hotWaterBoost=1" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+	<VirtualOutCmd Title="stopHotWaterBoost" Comment="" CmdOnMethod="GET" CmdOffMethod="GET" CmdOn="/nibe/index.php?mode=set&amp;systemId=37034&amp;hotWaterBoost=0" CmdOnHTTP="" CmdOnPost="" CmdOff="" CmdOffHTTP="" CmdOffPost="" Analog="false" Repeat="0" RepeatRate="0"/>
+</VirtualOut>
