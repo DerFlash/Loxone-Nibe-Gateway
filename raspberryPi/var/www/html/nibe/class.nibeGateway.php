@@ -37,6 +37,11 @@ class NibeGateway {
 			}
 			die();
 		}
+		
+		else if (isset($_GET["status"]))
+		{
+			echo ($this->nibeAPI->checkToken() === false) ? "0" : "1";
+		}
 
 		else if (isset($_GET["mode"]))
 		{
