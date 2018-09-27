@@ -181,7 +181,7 @@ class NibeAPI {
 
 	function load_token()
 	{
-		$token = file_get_contents("token");
+		$token = @file_get_contents("token");
 		if ($token === false)
 		{
 			return false;
